@@ -10,7 +10,7 @@ window.onload = function() {
     // {'href':'www.baidu.com','text':'1','src':'https://img.d2c.cn//2019/05/16/1143144a765c495adaa38efdb5c84099fb225e.jpg!300'},
     // {'href':'www.baidu.com','text':'1','src':'https://img.d2c.cn//2019/05/16/1143144a765c495adaa38efdb5c84099fb225e.jpg!300'},
     // {'href':'www.baidu.com','text':'1','src':'https://img.d2c.cn//2019/05/16/1143144a765c495adaa38efdb5c84099fb225e.jpg!300'}];
-    data = [{'href':'www.baidu.com','text':'1','src':'images/1.png'},
+    data = [{'href':'www.baidu.com','text':'1','src':'https://img.d2c.cn//2019/05/16/1143144a765c495adaa38efdb5c84099fb225e.jpg!300'},
     {'href':'www.baidu.com','text':'2','src':'images/2.png'},
     {'href':'www.baidu.com','text':'3','src':'images/3.png'},
     {'href':'www.baidu.com','text':'4','src':'images/4.png'},
@@ -33,3 +33,4 @@ window.onload = function() {
         data:data
     });
 }
+

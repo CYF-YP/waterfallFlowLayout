@@ -1,23 +1,162 @@
 // ;防止跟其他js压缩时报错
-;(function(window, document){
+; (function (window, document) {
     // 开启严格模式
     "use strict";
+
     function waterfallFlowLayout(options) {
         var self = this;
-        if(!options) {
+        if (!options) {
             throw new Error("请传入配置参数");
         }
         self = Object.assign(self, options);
         self.container = document.querySelector(self.container) || document.querySelectorAll(self.container);
-        self.waterfall(self.container, self.data);
+
+        self.wraplist(self.container, self.data);
+
+        var clock;
+        window.onscroll = function () {
+            if (clock) {
+                clearTimeout(clock);
+            }
+            clock = setTimeout(function () {
+                self.show(self.container);
+            }, 500);
+        };
+        // document.addEventListener("onscroll", function (e) {
+        //     if(clock){
+        //         clearTimeout(clock);
+        //     }
+        //     clock = setTimeout(function(){
+        //         self.show(self.container);
+        //     },500);
+        // }); 
     };
+
+    // 图片
+    var imgReady = (function () {
+        var list = [], intervalId = null,
+
+            // 用来执行队列
+            tick = function () {
+                var i = 0;
+                for (; i < list.length; i++) {
+                    list[i].end ? list.splice(i--, 1) : list[i]();
+                };
+                !list.length && stop();
+            },
+
+            // 停止所有定时器队列
+            stop = function () {
+                clearInterval(intervalId);
+                intervalId = null;
+            };
+
+        return function (url, ready, load, error) {
+            var onready, width, height, newWidth, newHeight,
+                img = new Image();
+
+            img.src = url;
+
+            // 如果图片被缓存，则直接返回缓存数据
+            if (img.complete) {
+                ready.call(img);
+                load && load.call(img);
+                return;
+            };
+            
+            width = img.width;
+            height = img.height;
+
+            // 加载错误后的事件
+            img.onerror = function () {
+                error && error.call(img);
+                onready.end = true;
+                img = img.onload = img.onerror = null;
+            };
+
+            // 图片尺寸就绪
+            onready = function () {
+                newWidth = img.width;
+                newHeight = img.height;
+                if (newWidth !== width || newHeight !== height ||
+                    // 如果图片已经在其他地方加载可使用面积检测
+                    newWidth * newHeight > 1024
+                ) {
+                    ready.call(img);
+                    onready.end = true;
+                };
+            };
+            onready();
+
+            // 完全加载完毕的事件
+            img.onload = function () {
+                // onload在定时器时间差范围内可能比onready快
+                // 这里进行检查并保证onready优先执行
+                !onready.end && onready();
+
+                load && load.call(img);
+
+                // IE gif动画会循环执行onload，置空onload即可
+                img = img.onload = img.onerror = null;
+            };
+
+            // 加入队列中定期执行
+            if (!onready.end) {
+                list.push(onready);
+                // 无论何时只允许出现一个定时器，减少浏览器性能损耗
+                if (intervalId === null) intervalId = setInterval(tick, 40);
+            };
+        };
+    })();
 
     // 原型链上提供方法
     waterfallFlowLayout.prototype = {
-        
+        show: function (wrap) {
+            var data = [];
+            document.querySelectorAll('img[data-isloaded="0"]').forEach((item, index) => {
+                if (this.isShow(item)) {
+                    this.loaded(item);
+                    data.push(document.querySelectorAll('.list-item')[index]);
+                    this.waterfall(wrap, data);
+                }
+            });
+        },
+        // 判断可视区域
+        isShow: function (element) {
+            return element.offsetTop <= window.innerHeight + document.body.scrollTop;
+        },
+        // 图片处理
+        loaded: function (element) {
+            element.setAttribute('src', element.getAttribute('data-src'));
+            element.setAttribute('data-isloaded', '1');
+        },
+
+        // 处理并显示列表
+        wraplist: function (wrap, data) {
+            var temCount = 0;
+
+            for (var index in data) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'list-item');
+                div.innerHTML = '<a href=' + data[index].href + '><img src="" data-src=' + data[index].src + ' data-isloaded="0" alt=""><span>' + data[index].text + '</span></a>';
+                wrap.appendChild(div);
+                imgReady(data[index].src, function () {
+                    console.log(this.width);
+                    console.log(this.height);
+                    console.log(wrap.getElementsByTagName('div')[index].offsetWidth - 20);
+                    console.log((wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px');
+                    document.getElementsByTagName('img')[index].style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
+                    temCount++;
+                    // waterfallFlowLayout.prototype.waterfall(wrap, wrap.getElementsByTagName('div'));
+                });
+            }
+            this.show(wrap);
+            // return wrap.getElementsByTagName('div');
+        },
         // 瀑布流处理
-        waterfall:function(wrap, data) {
-            var boxes = this.wraplist(wrap, data);
+        waterfall: function (wrap, data) {
+            // var boxes = this.wraplist(wrap, data);
+            var boxes = data;
             // 获取屏幕显示的列数
             // offsetWidth 水平方向 width + 左右padding + 左右border-width
             var boxWidth = boxes[0].offsetWidth + 20;
@@ -30,8 +169,8 @@
 
             // 定义一个数组并存储每一列高度
             var everyHeight = new Array();
-            for(var i = 0; i < boxes.length; i++) {
-                if(i < colsNumber) {
+            for (var i = 0; i < boxes.length; i++) {
+                if (i < colsNumber) {
                     everyHeight[i] = boxes[i].offsetHeight + 20;
                 } else {
                     var minHeight = Math.min.apply(null, everyHeight);
@@ -45,30 +184,20 @@
             }
         },
         // 获取最小列索引
-        getIndex:function(minHeight, everyHeight) {
-            for(var index in everyHeight) {
-                if(everyHeight[index] == minHeight) {
+        getIndex: function (minHeight, everyHeight) {
+            for (var index in everyHeight) {
+                if (everyHeight[index] == minHeight) {
                     return index;
                 }
             }
-        },
-        // 处理并显示列表
-        wraplist:function(wrap, data) {
-            console.log(data);
-            for(var index in data) {
-                var div = document.createElement('div');
-                div.innerHTML = '<a href='+ data[index].href +'><img src='+ data[index].src +' alt=""><span>'+ data[index].text +'<span></a>';
-                wrap.appendChild(div);
-            }
-            return wrap.getElementsByTagName('div');
         }
     };
     // 兼容CommonJs规范
-    if(typeof module !== 'undefined' && module.exports) {
+    if (typeof module !== 'undefined' && module.exports) {
         module.exports = waterfallFlowLayout;
     };
     // 兼容AMD/CMD规范
-    if(typeof define === 'function') define(function() {
+    if (typeof define === 'function') define(function () {
         return waterfallFlowLayout;
     });
     // 注册全局变量,兼容使用script标签引入插件
