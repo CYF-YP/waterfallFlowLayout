@@ -115,9 +115,8 @@
             var data = [];
             document.querySelectorAll('img[data-isloaded="0"]').forEach((item, index) => {
                 if (this.isShow(item)) {
-                    this.loaded(item);
                     data.push(document.querySelectorAll('.list-item')[index]);
-                    this.waterfall(wrap, data);
+                    this.loaded(item, index, data);
                 }
             });
         },
@@ -126,29 +125,32 @@
             return element.offsetTop <= window.innerHeight + document.body.scrollTop;
         },
         // 图片处理
-        loaded: function (element) {
+        loaded: function (element, index, data) {
             element.setAttribute('src', element.getAttribute('data-src'));
             element.setAttribute('data-isloaded', '1');
+            imgReady(element.getAttribute('data-src'), function () {
+                console.log(this.width);
+                console.log(this.height);
+                console.log(wrap.getElementsByTagName('div')[index].offsetWidth - 20);
+                console.log((wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px');
+                element.style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
+                waterfallFlowLayout.prototype.waterfall(wrap, data);
+            });
+            // var img = new Image();
+            // img.src = element.getAttribute('data-src');
+            // img.onload = function() {
+            //     element.style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
+            //     waterfallFlowLayout.prototype.waterfall(wrap, data);
+            // };
         },
 
         // 处理并显示列表
         wraplist: function (wrap, data) {
-            var temCount = 0;
-
             for (var index in data) {
                 var div = document.createElement('div');
                 div.setAttribute('class', 'list-item');
                 div.innerHTML = '<a href=' + data[index].href + '><img src="" data-src=' + data[index].src + ' data-isloaded="0" alt=""><span>' + data[index].text + '</span></a>';
                 wrap.appendChild(div);
-                imgReady(data[index].src, function () {
-                    console.log(this.width);
-                    console.log(this.height);
-                    console.log(wrap.getElementsByTagName('div')[index].offsetWidth - 20);
-                    console.log((wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px');
-                    document.getElementsByTagName('img')[index].style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
-                    temCount++;
-                    // waterfallFlowLayout.prototype.waterfall(wrap, wrap.getElementsByTagName('div'));
-                });
             }
             this.show(wrap);
             // return wrap.getElementsByTagName('div');
@@ -176,7 +178,7 @@
                     var minHeight = Math.min.apply(null, everyHeight);
                     var minIndex = this.getIndex(minHeight, everyHeight);
                     var leftValue = boxes[minIndex].offsetLeft - 10;
-                    boxes[i].style.position = 'absoult';
+                    boxes[i].style.position = 'absolute';
                     boxes[i].style.top = minHeight + 'px';
                     boxes[i].style.left = leftValue + 'px';
                     everyHeight[minIndex] += boxes[i].offsetHeight + 20;
