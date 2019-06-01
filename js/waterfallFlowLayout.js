@@ -10,9 +10,7 @@
         }
         self = Object.assign(self, options);
         self.container = document.querySelector(self.container) || document.querySelectorAll(self.container);
-
         self.wraplist(self.container, self.data);
-
         var clock;
         window.onscroll = function () {
             if (clock) {
@@ -22,20 +20,11 @@
                 self.show(self.container);
             }, 500);
         };
-        // document.addEventListener("onscroll", function (e) {
-        //     if(clock){
-        //         clearTimeout(clock);
-        //     }
-        //     clock = setTimeout(function(){
-        //         self.show(self.container);
-        //     },500);
-        // }); 
     };
 
     // 图片
     var imgReady = (function () {
         var list = [], intervalId = null,
-
             // 用来执行队列
             tick = function () {
                 var i = 0;
@@ -52,9 +41,7 @@
             };
 
         return function (url, ready, load, error) {
-            var onready, width, height, newWidth, newHeight,
-                img = new Image();
-
+            var onready, width, height, newWidth, newHeight, img = new Image();
             img.src = url;
 
             // 如果图片被缓存，则直接返回缓存数据
@@ -116,7 +103,7 @@
             document.querySelectorAll('img[data-isloaded="0"]').forEach((item, index) => {
                 if (this.isShow(item)) {
                     data.push(document.querySelectorAll('.list-item')[index]);
-                    this.loaded(item, index, data);
+                    this.loaded(item, index, wrap, data);
                 }
             });
         },
@@ -125,23 +112,17 @@
             return element.offsetTop <= window.innerHeight + document.body.scrollTop;
         },
         // 图片处理
-        loaded: function (element, index, data) {
+        loaded: function (element, index, wrap, data) {
             element.setAttribute('src', element.getAttribute('data-src'));
             element.setAttribute('data-isloaded', '1');
             imgReady(element.getAttribute('data-src'), function () {
-                console.log(this.width);
-                console.log(this.height);
-                console.log(wrap.getElementsByTagName('div')[index].offsetWidth - 20);
-                console.log((wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px');
+                // console.log(this.width);
+                // console.log(this.height);
+                // console.log(wrap.getElementsByTagName('div')[index].offsetWidth - 20);
+                // console.log((wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px');
                 element.style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
                 waterfallFlowLayout.prototype.waterfall(wrap, data);
             });
-            // var img = new Image();
-            // img.src = element.getAttribute('data-src');
-            // img.onload = function() {
-            //     element.style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
-            //     waterfallFlowLayout.prototype.waterfall(wrap, data);
-            // };
         },
 
         // 处理并显示列表
@@ -153,11 +134,9 @@
                 wrap.appendChild(div);
             }
             this.show(wrap);
-            // return wrap.getElementsByTagName('div');
         },
         // 瀑布流处理
         waterfall: function (wrap, data) {
-            // var boxes = this.wraplist(wrap, data);
             var boxes = data;
             // 获取屏幕显示的列数
             // offsetWidth 水平方向 width + 左右padding + 左右border-width
