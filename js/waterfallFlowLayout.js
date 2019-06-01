@@ -20,6 +20,17 @@
                 self.show(self.container);
             }, 500);
         };
+        var reclock;
+        window.onresize = function() {
+            if(reclock) {
+                clearTimeout(clock);
+            }
+            reclock = setTimeout(function() {
+                self.container.innerHTML = "";
+                self.reshow(self.container, self.data);
+            }, 500);
+            
+        };
     };
 
     // 图片
@@ -98,6 +109,14 @@
 
     // 原型链上提供方法
     waterfallFlowLayout.prototype = {
+        reshow: function(wrap, data) {
+            // document.querySelectorAll('img[data-isloaded="1"]').forEach((item, index) => {
+            //     item.setAttribute('data-isloaded', '0');
+            //     item.setAttribute('src', '');
+            // });
+            // this.show(wrap);
+            this.wraplist(wrap, data);
+        },
         show: function (wrap) {
             var data = [];
             document.querySelectorAll('img[data-isloaded="0"]').forEach((item, index) => {
@@ -116,10 +135,6 @@
             element.setAttribute('src', element.getAttribute('data-src'));
             element.setAttribute('data-isloaded', '1');
             imgReady(element.getAttribute('data-src'), function () {
-                // console.log(this.width);
-                // console.log(this.height);
-                // console.log(wrap.getElementsByTagName('div')[index].offsetWidth - 20);
-                // console.log((wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px');
                 element.style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
                 waterfallFlowLayout.prototype.waterfall(wrap, data);
             });
@@ -156,6 +171,7 @@
                 } else {
                     var minHeight = Math.min.apply(null, everyHeight);
                     var minIndex = this.getIndex(minHeight, everyHeight);
+                    // offsetLeft 父元素设置position则为元素边框外侧到父元素边框内测的距离
                     var leftValue = boxes[minIndex].offsetLeft - 10;
                     boxes[i].style.position = 'absolute';
                     boxes[i].style.top = minHeight + 'px';
