@@ -10,17 +10,10 @@
         }
         self = Object.assign(self, options);
         self.container = document.querySelector(self.container) || document.querySelectorAll(self.container);
+        
         self.wraplist(self.container, self.data);
-        // var clock;
-        // window.onscroll = function () {
-        //     if (clock) {
-        //         clearTimeout(clock);
-        //     }
-        //     clock = setTimeout(function () {
-        //         self.show(self.container);
-        //     }, 500);
-        //     console.log("11111111111111111");
-        // };
+        
+        // 滚动加载部分,loadCount== 2时全部加载完成并显示提示信息
         var loadCount = 0;
         if(self.isScroll) {
             window.onscroll = function() {
@@ -49,7 +42,6 @@
                             document.getElementById('descrip').style.background = 'inherit';
                             document.getElementById('descrip').style.position = 'absolute';
                             document.getElementById('descrip').style.top = document.getElementById('descrip').previousElementSibling.offsetTop + document.getElementById('descrip').previousElementSibling.offsetHeight + 'px';
-                            
                         }
                         return self.pageData;
                     }
@@ -57,6 +49,7 @@
             };
         }
         
+        // 监听浏览器窗口改变重新布局
         var reclock;
         window.onresize = function() {
             if(reclock) {
@@ -149,29 +142,6 @@
         reshow: function(wrap, data) {
             this.wraplist(wrap, data);
         },
-        // show: function (wrap) {
-        //     var data = [];
-        //     document.querySelectorAll('img[data-isloaded="0"]').forEach((item, index) => {
-        //         if (this.isShow(item)) {
-        //             data.push(document.querySelectorAll('.list-item')[index]);
-        //             this.loaded(item, index, wrap, data);
-        //         }
-        //     });
-        // },
-        // // 判断可视区域
-        // isShow: function (element) {
-        //     return element.offsetTop <= window.innerHeight + document.body.scrollTop;
-        // },
-        // // 图片处理
-        // loaded: function (element, index, wrap, data) {
-        //     element.setAttribute('src', element.getAttribute('data-src'));
-        //     element.setAttribute('data-isloaded', '1');
-        //     imgReady(element.getAttribute('data-src'), function () {
-        //         element.style.height = (wrap.getElementsByTagName('div')[index].offsetWidth - 20) * (this.height / this.width) + 'px';
-        //         waterfallFlowLayout.prototype.waterfall(wrap, data);
-        //     });
-        // },
-
         show: function(wrap) {
             var data = [];
             document.querySelectorAll('img').forEach((item, index) => {
@@ -199,6 +169,7 @@
             }
             this.show(wrap);
         },
+
         // 瀑布流处理
         waterfall: function (wrap, data) {
             var boxes = data;
@@ -229,6 +200,7 @@
                 };
             }
         },
+
         // 获取最小列索引
         getIndex: function (minHeight, everyHeight) {
             for (var index in everyHeight) {
@@ -238,14 +210,17 @@
             }
         }
     };
+
     // 兼容CommonJs规范
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = waterfallFlowLayout;
     };
+
     // 兼容AMD/CMD规范
     if (typeof define === 'function') define(function () {
         return waterfallFlowLayout;
     });
+    
     // 注册全局变量,兼容使用script标签引入插件
     window.waterfallFlowLayout = waterfallFlowLayout;
 })(window, document);
