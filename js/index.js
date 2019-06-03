@@ -31,12 +31,41 @@ window.onload = function () {
                 data.result[0].channellist[x].text = data.result[0].channellist[x].name;
             }
             console.log(data.result[0].channellist);
-            new waterfallFlowLayout({
+            var pageData = {pageNumber: 1, pageSize: 10,totalPage: 2, dataDescription: ""};
+            var waterfall = new waterfallFlowLayout({
                 container: "#wrap",
-                data: data.result[0].channellist
+                data: data.result[0].channellist,
+                isScroll: true,
+                pageData: pageData
             });
+            Object.defineProperty(pageData, "pageNumber", {
+                get:function() {
+                    return pageNumber;
+                },
+                set:function(value) {
+                    pageNumber = value;
+                    for(x in data.result[1].channellist) {
+                        data.result[1].channellist[x].src = data.result[1].channellist[x].avatar;
+                        data.result[1].channellist[x].href = "www.baidu.com";
+                        data.result[1].channellist[x].text = data.result[1].channellist[x].name;
+                    }
+                    waterfall.data = data.result[0].channellist.concat( data.result[1].channellist);
+                    setTimeout(function () {
+                        waterfall.wraplist(document.getElementById('wrap'), data.result[1].channellist);
+                    }, 3000);
+                }
+            });
+            Object.defineProperty(pageData, "dataDescription", {
+                get:function() {
+                    return dataDescription;
+                },
+                set:function(value) {
+                    dataDescription = value;
+                }
+            });
+            pageData.pageNumber = 1;
+            console.log(waterfall);
         }
     });
-
 }
 
