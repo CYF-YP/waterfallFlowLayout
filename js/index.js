@@ -33,10 +33,11 @@ window.onload = function () {
                         data.result[1].channellist[x].href = "www.baidu.com";
                         data.result[1].channellist[x].text = data.result[1].channellist[x].name;
                     }
-                    waterfall.data = data.result[0].channellist.concat( data.result[1].channellist);
+                    waterfall.data = waterfall.data.concat(data.result[1].channellist);
                     setTimeout(function () {
                         waterfall.wraplist(document.getElementById('wrap'), data.result[1].channellist);
                     }, 3000);
+                    console.log(waterfall.data);
                 }
             });
             // 提示信息处理(这里没做处理仅监听,处理部分写在组件里了)

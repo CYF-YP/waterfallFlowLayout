@@ -51,15 +51,30 @@
         
         // 监听浏览器窗口改变重新布局
         var reclock;
+        var reclockTip;
         window.onresize = function() {
             if(reclock) {
                 clearTimeout(reclock);
+                clearTimeout(reclockTip);
             }
             reclock = setTimeout(function() {
                 self.container.innerHTML = "";
                 self.reshow(self.container, self.data);
-            }, 500);
-            
+                // 防止图片未完全加载就执行,加一个定时器
+                reclockTip = setTimeout(function() {
+                    if(loadCount > 1) {
+                        var div = document.createElement('div');
+                        div.setAttribute('id', 'descrip');
+                        div.innerHTML = '<span>已全部加载完毕</span>'
+                        self.container.appendChild(div);
+                        document.getElementById('descrip').style.width = '100%';
+                        document.getElementById('descrip').style.textAlign = 'center';
+                        document.getElementById('descrip').style.background = 'inherit';
+                        document.getElementById('descrip').style.position = 'absolute';
+                        document.getElementById('descrip').style.top = document.getElementById('descrip').previousElementSibling.offsetTop + document.getElementById('descrip').previousElementSibling.offsetHeight + 'px';
+                    }
+                }, 500);
+            }, 500); 
         };
     };
 
