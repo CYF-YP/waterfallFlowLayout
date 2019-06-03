@@ -53,7 +53,7 @@
         var reclock;
         window.onresize = function() {
             if(reclock) {
-                clearTimeout(clock);
+                clearTimeout(reclock);
             }
             reclock = setTimeout(function() {
                 self.container.innerHTML = "";
@@ -220,7 +220,7 @@
     if (typeof define === 'function') define(function () {
         return waterfallFlowLayout;
     });
-    
+
     // 注册全局变量,兼容使用script标签引入插件
     window.waterfallFlowLayout = waterfallFlowLayout;
 })(window, document);
