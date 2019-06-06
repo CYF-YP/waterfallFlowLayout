@@ -10,29 +10,29 @@
         }
         self = Object.assign(self, options);
         self.container = document.querySelector(self.container) || document.querySelectorAll(self.container);
-
+        
         self.wraplist(self.container, self.data);
-
+        
         // 滚动加载部分,loadCount== 2时全部加载完成并显示提示信息
         var loadCount = 0;
-        if (self.isScroll) {
-            window.onscroll = function () {
+        if(self.isScroll) {
+            window.onscroll = function() {
                 //文档内容实际高度（包括超出视窗的溢出部分）
                 var scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
                 //滚动条滚动距离
                 var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
                 //窗口可视范围高度
-                var clientHeight = window.innerHeight || Math.min(document.documentElement.clientHeight, document.body.clientHeight);
-
-                if (clientHeight + scrollTop >= scrollHeight) {
+                var clientHeight = window.innerHeight || Math.min(document.documentElement.clientHeight,document.body.clientHeight);
+                
+                if(clientHeight + scrollTop >= scrollHeight){
                     // 获取下一页数据并显示
-                    if (self.pageData.pageNumber < self.pageData.totalPage) {
+                    if(self.pageData.pageNumber < self.pageData.totalPage) {
                         self.pageData.pageNumber += 1;
                         return self.pageData;
-                    } else {
+                    }else {
                         loadCount++;
                         self.pageData.dataDescription = "已全部加载完毕";
-                        if (loadCount == 2) {
+                        if(loadCount == 2) {
                             var div = document.createElement('div');
                             div.setAttribute('id', 'descrip');
                             div.innerHTML = '<span>已全部加载完毕</span>'
@@ -48,21 +48,21 @@
                 }
             };
         }
-
+        
         // 监听浏览器窗口改变重新布局
         var reclock;
         var reclockTip;
-        window.onresize = function () {
-            if (reclock) {
+        window.onresize = function() {
+            if(reclock) {
                 clearTimeout(reclock);
                 clearTimeout(reclockTip);
             }
-            reclock = setTimeout(function () {
+            reclock = setTimeout(function() {
                 self.container.innerHTML = "";
                 self.reshow(self.container, self.data);
                 // 防止图片未完全加载就执行,加一个定时器
-                reclockTip = setTimeout(function () {
-                    if (loadCount > 1) {
+                reclockTip = setTimeout(function() {
+                    if(loadCount > 1) {
                         var div = document.createElement('div');
                         div.setAttribute('id', 'descrip');
                         div.innerHTML = '<span>已全部加载完毕</span>'
@@ -74,7 +74,7 @@
                         document.getElementById('descrip').style.top = document.getElementById('descrip').previousElementSibling.offsetTop + document.getElementById('descrip').previousElementSibling.offsetHeight + 'px';
                     }
                 }, 500);
-            }, 500);
+            }, 500); 
         };
     };
 
@@ -106,7 +106,7 @@
                 load && load.call(img);
                 return;
             };
-
+            
             width = img.width;
             height = img.height;
 
@@ -154,10 +154,10 @@
 
     // 原型链上提供方法
     waterfallFlowLayout.prototype = {
-        reshow: function (wrap, data) {
+        reshow: function(wrap, data) {
             this.wraplist(wrap, data);
         },
-        show: function (wrap) {
+        show: function(wrap) {
             var data = [];
             document.querySelectorAll('img').forEach((item, index) => {
                 data.push(document.querySelectorAll('.list-item')[index]);
@@ -176,17 +176,13 @@
 
         // 处理并显示列表
         wraplist: function (wrap, data) {
-            if (data.length > 0) {
-                for (var index in data) {
-                    var div = document.createElement('div');
-                    div.setAttribute('class', 'list-item');
-                    div.innerHTML = '<a href=' + data[index].href + '><img src="" data-src=' + data[index].src + ' data-isloaded="0" alt=""><span>' + data[index].text + '</span></a>';
-                    wrap.appendChild(div);
-                }
-                this.show(wrap);
-            } else {
-                return;
+            for (var index in data) {
+                var div = document.createElement('div');
+                div.setAttribute('class', 'list-item');
+                div.innerHTML = '<a href=' + data[index].href + '><img src="" data-src=' + data[index].src + ' data-isloaded="0" alt=""><span>' + data[index].text + '</span></a>';
+                wrap.appendChild(div);
             }
+            this.show(wrap);
         },
 
         // 瀑布流处理
