@@ -1,5 +1,4 @@
 var pageData, pageNumber, waterfall;
-
 // 请求
 function getData(pageNumber) {
     $.ajax({
@@ -32,6 +31,7 @@ function getData(pageNumber) {
     });
 }
 
+// 初始化
 function init() {
     // 加载多页
     pageData = { pageSize: 10, totalPage: 1, dataDescription: "" };
